@@ -47,12 +47,6 @@ void Console::Start()
 }
 
 
-
-
-
-
-
-
 CONSOLE_FONT_INFOEX setPixelFont(int fontw, int fonth)
 {
 	CONSOLE_FONT_INFOEX cfi;
@@ -62,22 +56,9 @@ CONSOLE_FONT_INFOEX setPixelFont(int fontw, int fonth)
 	cfi.dwFontSize.Y = fonth;
 	cfi.FontFamily = FF_DONTCARE;
 	cfi.FontWeight = FW_NORMAL;
-	wcscpy_s(cfi.FaceName, L"Consolas");			// Set font to Consolas
+	wcscpy_s(cfi.FaceName, L"Consolas");			// Consolas is a font
 	return cfi;
 }
-
-
-
-/*
-CONSOLE_SCREEN_BUFFER_INFO buildScreenBuffer(int width, int height, HANDLE consoleHandle)
-{
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	assert(GetConsoleScreenBufferInfo(consoleHandle, &csbi));		// Puts m_hConsole's screen buffer info into csbi
-	assert(height <= csbi.dwMaximumWindowSize.Y);
-	assert(width <= csbi.dwMaximumWindowSize.X);
-	return csbi;
-}						// Not used any more.  Delete once we're comfortable with this fact.
-*/
 
 
 void SetScreenBufferSize(int width, int height, HANDLE consoleHandle)
@@ -85,6 +66,7 @@ void SetScreenBufferSize(int width, int height, HANDLE consoleHandle)
 	COORD coord = { (short)width, (short)height };
 	assert(SetConsoleScreenBufferSize(consoleHandle, coord));
 }
+
 
 // Define our static variables
 std::atomic<bool> Console::m_bAtomActive(false);

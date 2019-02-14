@@ -16,7 +16,7 @@ int numVerticesOnCorrectSide(vec3d &pointOnPlane, vec3d &normalVectorToPlane, tr
 
 void rotateTriangle(triangle &tri);
 
-void clipByPlane(vec3d &pointOnPlane, vec3d &normalVectorToPlane, std::list<triangle> &clippedTriangles);
+void clipByPlane(vec3d &pointOnPlane, vec3d &normalVectorToPlane, std::list<triangle> &clippedTriangles, bool clipping_debug = true);
 
 std::vector<triangle> clipByZCoordinate(std::vector<triangle> const &triangles);
 

@@ -18,5 +18,4 @@ public:
 	bool loadFromObjectFile(std::string fileName); 	
 };
 
-
 #endif

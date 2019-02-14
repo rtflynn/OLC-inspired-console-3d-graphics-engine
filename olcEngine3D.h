@@ -11,14 +11,11 @@
 #include "basicShapes.h"
 
 
-
-
 class olcEngine3D : public Drawer
 {
 
 public:
 	olcEngine3D() { m_sAppName = L"3D Engine"; }
-
 
 private:
 	std::vector<mesh> myObjects;
@@ -29,11 +26,8 @@ private:
 	mat4x4 matNewCoordsToOriginal{ 0.0f };
 	vec3d cameraLocation{ 0.0f };
 
-
 	CHAR_INFO GetColour(float luminosity);		
-
 	void applyKeyboardInputsToRotationsAndTranslations(float fElapsedTime);
-	
 	mat4x4 makeRotTranMat(float fElapsedTime);
 
 public:
@@ -53,14 +47,6 @@ public:
 
 	void projectTrianglesToScreen(std::list<triangle> &triangles);
 
-	void clipByScreenDimensions2(std::vector<triangle> &triangles2D, std::vector<triangle> &trianglesToRasterize);
-
-	void clipByScreenDimensions(std::vector<triangle> &triangles2D, std::vector<triangle> &trianglesToRasterize);
-
-	void drawObject(mesh &myMesh, std::vector<triangle> &trianglesInPaintersOrder);
-
-	void drawObjects(std::vector<mesh> &myObjects, std::vector<triangle> &trianglesInPaintersOrder);
-
 	void updateViewMatrices(float fElapsedTime);
 
 	std::list<triangle> collectAllTrianglesInOnePlace();
@@ -76,9 +62,6 @@ public:
 	void sortTrianglesByZCoord(std::vector<triangle> &tris);
 
 	bool OnUserUpdate(float fElapsedTime) override;
-
-
-
 
 };
 

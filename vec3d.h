@@ -25,5 +25,4 @@ vec3d crossProduct(vec3d const P, vec3d const Q);
 
 void normalize(vec3d &v);
 
-
 #endif

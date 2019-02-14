@@ -12,20 +12,13 @@ vec3d operator*(mat4x4 const &m, vec3d const &i)
 	result.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + i.proj * m.m[3][0];
 	result.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + i.proj * m.m[3][1];
 	result.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + i.proj * m.m[3][2];
-
-	float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.proj * m.m[3][3];		// If we end up reverting these changes, this last one keeps the m.m[3][3] just times 1
-
-//	if (w != 0) {	
-//		result = result / abs(w);
-//		return result;
-//	}
-
+	float w  = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.proj * m.m[3][3];		
+	
 	if (w > 0) {
 		result = result / w;
 		return result;
 	}
-	else if (w < 0) {			// This may break some things regarding clipping.  For some reason dividing by abs(w) 
-								// retains the undesired artefacts.
+	else if (w < 0) {			
 		return result;
 	}	
 	else {
@@ -33,7 +26,6 @@ vec3d operator*(mat4x4 const &m, vec3d const &i)
 		return result;
 	}
 }
-
 
 
 mat4x4 operator*(mat4x4 const &m1, mat4x4 const &m2)
@@ -50,16 +42,9 @@ mat4x4 operator*(mat4x4 const &m1, mat4x4 const &m2)
 }
 
 
-
-
-
 mat4x4 makeProjectionMatrix(float fAspectRatio, float fNear, float fFar, float fFov)
 {
 	mat4x4 matProj{ 0.0f };
-	//float fNear = 0.1f;
-	//float fFar = 1000.0f;
-	//float fFov = 90.0f;
-	//float fAspectRatio = (float)ScreenHeight() / (float)ScreenWidth();
 	float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
 	float q = fFar / (fFar - fNear);
 
@@ -72,8 +57,6 @@ mat4x4 makeProjectionMatrix(float fAspectRatio, float fNear, float fFar, float f
 
 	return matProj;
 }
-
-
 
 
 mat4x4 makeRotationMatrixZ(float fTheta)
@@ -89,9 +72,6 @@ mat4x4 makeRotationMatrixZ(float fTheta)
 }
 
 
-
-
-
 mat4x4 makeRotationMatrixX(float fTheta)
 {
 	mat4x4 matRotX{ 0.0f };
@@ -103,7 +83,6 @@ mat4x4 makeRotationMatrixX(float fTheta)
 	matRotX.m[3][3] = 1.0f;
 	return matRotX;
 }
-
 
 
 mat4x4 makeRotationMatrixY(float fTheta)
@@ -119,7 +98,7 @@ mat4x4 makeRotationMatrixY(float fTheta)
 }
 
 
-mat4x4 matrixPointAt(vec3d &pos, vec3d &target, vec3d &up) // Sitting at pos and looking at target
+mat4x4 matrixPointAt(vec3d &pos, vec3d &target, vec3d &up) // Sitting at pos and looking at target, with given "up" direction
 {
 	vec3d newForward = target - pos;
 	normalize(newForward);
@@ -149,7 +128,7 @@ mat4x4 matrixPointAt(vec3d &pos, vec3d &target, vec3d &up) // Sitting at pos and
 }
 
 
-mat4x4 quickInverse(mat4x4 const &m)		// Works because m has determinant 1 and 0's on rightmost column off the diagonal
+mat4x4 quickInverse(mat4x4 const &m)		// Easy to check that this gives the inverse matrix *in our particular situation*
 {
 	mat4x4 inv{ 0.0f };
 	inv.m[0][0] = m.m[0][0];
@@ -166,10 +145,5 @@ mat4x4 quickInverse(mat4x4 const &m)		// Works because m has determinant 1 and 0
 	inv.m[3][2] = -(m.m[3][0] * m.m[0][2] + m.m[3][1] * m.m[1][2] + m.m[3][2] * m.m[2][2]);
 	inv.m[3][3] = 1.0f;
 
-
 	return inv;
-
 }
-
-
-

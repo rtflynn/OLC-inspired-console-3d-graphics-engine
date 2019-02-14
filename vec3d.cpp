@@ -1,6 +1,5 @@
 #include "vec3d.h"
 
-
 vec3d operator+(const vec3d &p, const vec3d &q)
 {
 	vec3d sum;

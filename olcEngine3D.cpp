@@ -36,48 +36,41 @@
 
 	void olcEngine3D::applyKeyboardInputsToRotationsAndTranslations(float fElapsedTime)
 	{
+		// Up/Down/Left/Right
 		if (m_keyboard.getState(0x25).bHeld)
-		{
-			cameraLocation.x -= 3.0*fElapsedTime;
-			//			fThetaZ += 1.0f * fElapsedTime;
+		{		
+			fYaw += 1.0f * fElapsedTime;
 		}
 		if (m_keyboard.getState(0x27).bHeld)
-		{
-			cameraLocation.x += 3.0 * fElapsedTime;
-			//			fThetaZ -= 1.0f * fElapsedTime;
+		{			
+			fYaw -= 1.0f * fElapsedTime;
 		}
 		if (m_keyboard.getState(0x26).bHeld) {
 			cameraLocation.y += 3.0 * fElapsedTime;
-			//			fThetaX += 1.0f * fElapsedTime;
 		}
 		if (m_keyboard.getState(0x28).bHeld) {
 			cameraLocation.y -= 3.0 * fElapsedTime;
-
-			//			fThetaX -= 1.0f * fElapsedTime;
 		}
 
 		// WSAD to move the camera forward/backward/left/right
 		if (m_keyboard.getState(0x57).bHeld)
 		{
-			//translation.z -= 3.0*fElapsedTime;
-			cameraLocation.z += 1.0 * fElapsedTime;			// These are equivalent.  Do we want to think about translating the objects or the camera?
+			cameraLocation.z += 1.0 * fElapsedTime;	
 		}
 		if (m_keyboard.getState(0x53).bHeld)
 		{
 			cameraLocation.z -= 1.0 * fElapsedTime;
-			//translation.z += 3.0*fElapsedTime;
 		}
 		if (m_keyboard.getState(0x41).bHeld)
 		{
 			translation.x += 3.0*fElapsedTime;
-			//fYaw += 1.0*fElapsedTime;
 		}
 		if (m_keyboard.getState(0x44).bHeld)
 		{
-			//fYaw -= 1.0*fElapsedTime;
 			translation.x -= 3.0*fElapsedTime;
 		}
 	}
+
 
 	mat4x4 olcEngine3D::makeRotTranMat(float fElapsedTime)
 	{
@@ -99,31 +92,20 @@
 
 	bool olcEngine3D::OnUserCreate() 
 	{
-
-		/*
 		mesh someMesh;
-//		someMesh = unitCube();// +vec3d({ 0.0f, 0.0f, 0.0f });
 		someMesh.loadFromObjectFile("teapot.obj");			// Interesting history on the Utah teapot
-		myObjects.push_back(someMesh);						// At the moment this is causing problems with division by 0, i.e. the projection matmul
-															// is giving a w value of 0.  Probs cause this goes through origin etc.
-
+		myObjects.push_back(someMesh);						
+													
+/*
 		mesh someOtherMesh;
 		someOtherMesh.loadFromObjectFile("teapot.obj");
 		myObjects.push_back(someOtherMesh + vec3d({ 7.0f, 0.0f, 10.0f }));		
+
 
 		mesh someOtherOtherMesh;
 		someOtherOtherMesh.loadFromObjectFile("teapot.obj");
 		myObjects.push_back(someOtherOtherMesh + vec3d({ -7.0f, 0.0f, 5.0f }));
 		*/
-
-
-
-		mesh someEasierMesh;
-		someEasierMesh.loadFromObjectFile("VideoShip.obj");
-		myObjects.push_back(someEasierMesh);
-
-
-
 
 		float fAspectRatio = (float)ScreenHeight() / (float)ScreenWidth();
 		matProj = makeProjectionMatrix(fAspectRatio);
@@ -135,7 +117,7 @@
 		FillRectangle(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_BLACK);
 	}
 
-	void olcEngine3D::drawAllTriangles(std::vector<triangle> &trianglesInPaintersOrder, bool debug = FALSE)
+	void olcEngine3D::drawAllTriangles(std::vector<triangle> &trianglesInPaintersOrder, bool drawalltriangles_debug = false)
 	{
 		for (auto const &triProjected : trianglesInPaintersOrder)
 		{
@@ -144,7 +126,7 @@
 				triProjected.p[2].x, triProjected.p[2].y,
 				triProjected.symbol, triProjected.color);
 
-			if (debug) {
+			if (drawalltriangles_debug) {
 				DrawTriangle(triProjected.p[0].x, triProjected.p[0].y,
 					triProjected.p[1].x, triProjected.p[1].y,
 					triProjected.p[2].x, triProjected.p[2].y,
@@ -176,7 +158,6 @@
 			triTranslated = rotationTranslationMatrix * tri;
 			triTranslated = matNewCoordsToOriginal * triTranslated;
 			std::vector<triangle> clippedTriangles;
-//			clipByPlane(zPlanePoint, zPlaneNormal, triTranslated, clippedTriangles);
 
 			trianglesBeingProcessed.insert(trianglesBeingProcessed.end(), clippedTriangles.begin(), clippedTriangles.end());
 		}
@@ -234,122 +215,7 @@
 		}
 	}
 
-	
-	
-	// This is our "Cheap Clipping Procedure".  Either use this or expensive clipping, depending on the value of some boolean.
-	// This is very significantly faster than the true clipping procedure.
-	void olcEngine3D::clipByScreenDimensions(std::vector<triangle> &triangles2D, std::vector<triangle> &trianglesToRasterize)
-	{
 
-
-		vec3d leftWallPoint{ 0.0f, 0.0f, 0.0f };
-		vec3d leftWallNormal{ 1.0f, 0.0f, 0.0f };
-		vec3d topWallPoint{ 0.0f, 0.0f, 0.0f };
-		vec3d topWallNormal{ 0.0f, 1.0f, 0.0f };
-		vec3d rightWallPoint{ ScreenWidth() - 1, 0.0f, 0.0f };
-		vec3d rightWallNormal{ -1.0f, 0.0f, 0.0f };
-		vec3d bottomWallPoint{ 0.0f, ScreenHeight() - 1, 0.0f };
-		vec3d bottomWallNormal{ 0.0f, -1.0f, 0.0f };
-		std::list<triangle> leftClippedTriangles;
-
-
-		for (triangle tri : triangles2D)
-		{
-
-			float minX = min(tri.p[0].x, tri.p[1].x, tri.p[2].x);
-			float maxX = max(tri.p[0].x, tri.p[1].x, tri.p[2].x);
-			float minY = min(tri.p[0].y, tri.p[1].y, tri.p[2].y);
-			float maxY = max(tri.p[0].y, tri.p[1].y, tri.p[2].y);
-
-			if ((0 <= minX) and (maxX <= ScreenWidth() - 1) and (0 <= minY) and (maxY <= ScreenHeight() - 1))
-				trianglesToRasterize.push_back(tri);
-			//else
-			//{
-			//	std::vector<triangle> clippedTriangles;
-			//	clipByPlane(leftWallPoint, leftWallNormal, tri, clippedTriangles);
-			//	leftClippedTriangles.insert(leftClippedTriangles.end(), clippedTriangles.begin(), clippedTriangles.end());
-			//}
-		}
-
-		/*
-		for (triangle tri : leftClippedTriangles)
-		{
-		std::vector<triangle> clippedTriangles;
-		clipByPlane(topWallPoint, topWallNormal, tri, clippedTriangles);
-		leftAndTopClippedTriangles.insert(leftAndTopClippedTriangles.end(), clippedTriangles.begin(), clippedTriangles.end());
-		}
-
-		vec3d rightWallPoint{ ScreenWidth() - 1, 0.0f, 0.0f };
-		vec3d rightWallNormal{ -1.0f, 0.0f, 0.0f };
-		std::list<triangle> leftAndTopAndRightClippedTriangles;
-		for (triangle tri : leftAndTopClippedTriangles)
-		{
-		std::vector<triangle> clippedTriangles;
-		clipByPlane(rightWallPoint, rightWallNormal, tri, clippedTriangles);
-		leftAndTopAndRightClippedTriangles.insert(leftAndTopAndRightClippedTriangles.end(), clippedTriangles.begin(), clippedTriangles.end());
-		}
-
-		vec3d bottomWallPoint{ 0.0f, ScreenHeight() - 1, 0.0f };
-		vec3d bottomWallNormal{ 0.0f, -1.0f, 0.0f };
-		// Feed into clippedTriangles2D which was passed in by address
-		for (triangle tri : leftAndTopAndRightClippedTriangles)
-		{
-		std::vector<triangle> clippedTriangles;
-		clipByPlane(bottomWallPoint, bottomWallNormal, tri, clippedTriangles);
-		trianglesToRasterize.insert(trianglesToRasterize.end(), clippedTriangles.begin(), clippedTriangles.end());
-		}
-		*/
-	}
-
-
-
-
-	void olcEngine3D::drawObject(mesh &myMesh, std::vector<triangle> &trianglesInPaintersOrder)
-	{}
-
-
-	/*
-
-	void olcEngine3D::drawObject(mesh &myMesh, std::vector<triangle> &trianglesInPaintersOrder)
-	{
-		for (triangle tri : myMesh.tris)
-		{
-			triangle triProjected, triTranslated;
-			triTranslated = rotationTranslationMatrix * tri;
-			triTranslated = matNewCoordsToOriginal * triTranslated;
-
-			vec3d scalingVector{ 0.5f * (float)(ScreenWidth()), 0.5f*(float)(ScreenHeight()), 1.0f };
-			vec3d lightDirection{ 0.0f, 0.0f, -1.0f };
-			float lightDirectionLength = sqrtf(dotProduct(lightDirection, lightDirection));
-			lightDirection = lightDirection / lightDirectionLength;
-
-			vec3d normal = normalVectorToTriangle(triTranslated);
-			float length = sqrtf(dotProduct(normal, normal));
-
-			if (length > 0)
-				normal = normal / length;
-
-			if (dotProduct(normal, triTranslated.p[0] - cameraLocation) < 0)
-			{
-				triProjected = matProj * (triTranslated - cameraLocation);
-				vec3d shiftIntoView{ 1.0f, 1.0f, 0.0f };
-				triProjected = triProjected + shiftIntoView;
-				componentwiseMultiply(scalingVector, triProjected);
-
-				float naiveLuminosity = dotProduct(normal, lightDirection);
-				CHAR_INFO triangleColor = GetColour(naiveLuminosity);
-
-				triProjected.symbol = triangleColor.Char.UnicodeChar;
-				triProjected.color = triangleColor.Attributes;
-
-				trianglesInPaintersOrder.push_back(triProjected);
-			}
-
-		}
-	}
-
-	*/
-	
 	void olcEngine3D::updateViewMatrices(float fElapsedTime)
 	{
 		mat4x4 yawRotationMatrix = makeRotationMatrixY(fYaw);
@@ -360,15 +226,6 @@
 		mat4x4 matOriginalToNewCoords = matrixPointAt(cameraLocation, target, upDirection);
 		matNewCoordsToOriginal = quickInverse(matOriginalToNewCoords);
 		rotationTranslationMatrix = makeRotTranMat(fElapsedTime);
-	}
-
-
-	void olcEngine3D::drawObjects(std::vector<mesh> &myObjects, std::vector<triangle> &trianglesInPaintersOrder)
-	{
-		for (auto obj : myObjects)
-		{
-			drawObject(obj, trianglesInPaintersOrder);
-		}
 	}
 
 	
@@ -396,8 +253,8 @@
 	}
 
 
-	void olcEngine3D::cullAndApplyLighting(std::list<triangle> &ourTriangles)
-	{
+	void olcEngine3D::cullAndApplyLighting(std::list<triangle> &ourTriangles)	// Doing both in one function because both use the normal vector
+	{		
 		vec3d lightDirection{ 0.0f, 0.0f, -1.0f };	
 	
 		for (std::list<triangle>::iterator i = ourTriangles.begin(); i != ourTriangles.end(); )
@@ -435,14 +292,11 @@
 			float minZ = min(tri.p[0].z, tri.p[1].z, tri.p[2].z);
 			if (minZ < 0.1f)
 			{
-				i = triangles.erase(i);														
-				//tri.color = FG_BLUE;
-				//i++;
+				i = triangles.erase(i);													
 			}
 			else i++;
 		}
 	}
-
 
 
 	void olcEngine3D::screenBorderClip(std::list<triangle> &tris)
