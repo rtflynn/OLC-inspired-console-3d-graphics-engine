@@ -14,3 +14,4 @@ The most difficult part of this project was deciding on where to stop.  It's so 
 (4) Some words on Handles, perhaps threads, ...
 (5) Make a very simple 'level' to walk or fly around
 (6) Implement basic 'falling physics' ---- Harder than it sounds, this requires implementing collisions to detect the ground, etc.
+(7) Const-qualify everything ... (or don't?  I mean, the sacrifice in readability is a bit heavy, but the safety guarantee is nice to have...)
