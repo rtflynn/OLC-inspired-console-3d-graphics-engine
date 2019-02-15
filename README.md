@@ -1,17 +1,17 @@
 # OLC-Inspired 3D Graphics Engine for the Console
+![Utah Teapot](/Images/teapot_1.png)
 I got started on this project after finding a video from the OneLoneCoder YouTube channel. In the video, Javidx9 was showing off his impressive 'OLC Console Game Engine', which does what it sounds like: It renders graphics using only the console. Pixels are actually ASCII or Unicode characters, with a more-or-less 8-bit color scheme. If the console is set up to be a display of dimensions length x width, then for each frame update we populate a doubly-indexed array ScreenBuffer[L][W] to contain all the pixel info needed to display that frame. What's nice about this approach is its simplicity: All we need is a DrawPixel(l, w, CHAR_INFO) function which updates the screen buffer at location (l, w) to a given character with a given color. Given this, we can hit the ground running and develop all the graphics we want.
 
 This project differs from Javidx9's original version in several significant ways, and many more insignificant ways. First, although my main motivation and design came from watching Javid's videos, very little code was copy/pasted.  I copy/pasted a few tedious enums, as well as some code having to do with threads since I don't know about (and didn't want to divert attention to learn at the moment) mutexes, locks, etc.  I wrote essentially everything else from scratch, and tried as much as possible to keep the code clean and modular.  I used operator overloading to keep the matrix and vector arithmetic readable, and used (but didn't overuse) classes to separate implementation from interface, for example when it comes to dealing with keyboard and mouse input.
 
 One decision which actually made a noticable impact on performance was to use a std::list instead of a std::vector to store our triangles for most of the rendering pipeline.  This made all the insertions/deletions which come with culling and clipping cost as little as possible.  It was necessary to copy our list to a std::vector at the Z-buffer step because list sort was significantly slower than copying the list to a vector and using vector sort.  The two next most expensive steps of the rendering pipeline were the DrawLine and FillTriangle functions.  I wrote several versions of each of these, some quite naive, but each of my implementations turned out to be slower than I'd have liked.  So I eventually gave in and used Bresenham's algorithm for drawing lines, which makes good use of the fact that our pixel coordinates are integers to achieve a very noticable speedup.  Using this to draw lines made FillTriangle run significantly faster as well.
 
+Below:  A demonstration of clipping.  Triangles which don't fully fit in the screen can be very expensive to rasterize (draw with pixels), so to improve performance we 'clip' such triangles - i.e. cut the triangle along the boundary of the screen and throw away the part we won't be able to see.  It's not difficult to see that this leaves either a quadrilateral or a triangle on the screen.  If the leftover shape is a triangle, simply rasterize it like usual (these are shown below in green).  If the leftover shape is quadrilateral, then split it into two triangles and rasterize each of those as usual (these are shown in red and yellow).
+![Clipping Visualized](/Images/teapot_2.png)
+
+
 The most difficult part of this project was deciding on where to stop.  It's so tempting to just keep writing and adding features forever, but at some point it's important to recognize that we've hit diminishing returns on time spent coding vs amount learned.  For now I've decided to stop with the basic rendering pipeline in place.  If I'm to come back to this project some day, the first things I'd like to implement are (1) shadows, and (2) non one-directional light sources (i.e. light sources which are not infinitely far away).
 
-#TODO:  
-(1) Add images / videos of the engine in action
-(2) Consider adding a little bit of tutorial on using the code
-(3) Also consider tutorial on operator overloading
-(4) Some words on Handles, perhaps threads, ...
-(5) Make a very simple 'level' to walk or fly around
-(6) Implement basic 'falling physics' ---- Harder than it sounds, this requires implementing collisions to detect the ground, etc.
-(7) Const-qualify everything ... (or don't?  I mean, the sacrifice in readability is a bit heavy, but the safety guarantee is nice to have...)
+Instructions:  Clone this repository and compile + run.  The main() function is in GraphicsEngine.cpp, if you need to find it.  If this doesn't run, try lowering the console dimensions in the second line of main(): In	demo.SetConsole(256, 200, 4, 4), the console's width and height are 256 and 200, respectively.
+
+Use the WSAD and arrow keys to move around.  To introduce more objects into the scene, look at the OnUserCreate() method in olcEngine3D.cpp, in particular the commented code, to get an idea how.  
