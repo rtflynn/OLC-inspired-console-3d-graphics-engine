@@ -99,8 +99,8 @@ protected:
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
-			m_screenBuffer[(m_nScreenHeight - y) * m_nScreenWidth + x].Char.UnicodeChar = character;
-			m_screenBuffer[(m_nScreenHeight - y) * m_nScreenWidth + x].Attributes = color;
+			m_screenBuffer[(m_nScreenHeight - y - 1) * m_nScreenWidth + x].Char.UnicodeChar = character;
+			m_screenBuffer[(m_nScreenHeight - y - 1) * m_nScreenWidth + x].Attributes = color;
 		}
 	}
 
